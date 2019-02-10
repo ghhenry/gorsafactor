@@ -1,35 +1,28 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"math/big"
 	"os"
 )
 
 func main() {
-	in := bufio.NewReader(os.Stdin)
-	n := promptInt(in, "enter RSA modulus")
-	e := promptInt(in, "enter public exponent")
-	d := promptInt(in, "enter private exponent")
+	n := promptInt("enter RSA modulus")
+	e := promptInt("enter public exponent")
+	d := promptInt("enter private exponent")
 	p, q := factor(n, e, d)
 	fmt.Printf("%v = %v * %v\n", n, p, q)
 }
 
-func promptInt(in *bufio.Reader, p string) *big.Int {
+func promptInt(p string) *big.Int {
 	fmt.Println(p)
-	ns, err := in.ReadString('\n')
+	v := new(big.Int)
+	_, err := fmt.Scan(v)
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
-	var n big.Int
-	_, ok := n.SetString(ns[:len(ns)-1], 10)
-	if !ok {
-		fmt.Println("Could not convert number", ns)
-		os.Exit(1)
-	}
-	return &n
+	return v
 }
 
 var (
