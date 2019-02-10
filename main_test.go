@@ -36,10 +36,13 @@ var factorCases = []struct {
 
 func TestFactor(t *testing.T) {
 	for _, c := range factorCases {
-		p, q := factor(c.n, c.e, c.d)
-		fmt.Printf("%v = %v * %v\n", c.n, p, q)
-		if new(big.Int).Mul(p, q).Cmp(c.n) != 0 {
-			t.Error("wrong factors")
+		p, err := factor(c.n, c.e, c.d)
+		if err != nil {
+			t.Fatalf("factor gave an error: %v", err)
+		}
+		fmt.Printf("%v has factor %v\n", c.n, p)
+		if new(big.Int).Mod(c.n, p).Cmp(big.NewInt(0)) != 0 {
+			t.Error("but it is not a factor")
 		}
 	}
 }

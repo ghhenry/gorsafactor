@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 	"os"
@@ -10,8 +11,12 @@ func main() {
 	n := promptInt("enter RSA modulus")
 	e := promptInt("enter public exponent")
 	d := promptInt("enter private exponent")
-	p, q := factor(n, e, d)
-	fmt.Printf("%v = %v * %v\n", n, p, q)
+	p, err := factor(n, e, d)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("%v = %v * %v\n", n, p, new(big.Int).Div(n, p))
+	}
 }
 
 func promptInt(p string) *big.Int {
@@ -29,7 +34,7 @@ var (
 	one = big.NewInt(1)
 )
 
-func factor(n, e, d *big.Int) (p, q *big.Int) {
+func factor(n, e, d *big.Int) (*big.Int, error) {
 	nm1 := new(big.Int)
 	nm1.Sub(n, one)
 	t := big.NewInt(0)
@@ -60,14 +65,11 @@ nexta:
 			if a2.Cmp(one) == 0 {
 				f1 := new(big.Int)
 				f1.GCD(nil, nil, n, a.Sub(a, one))
-				return f1, new(big.Int).Div(n, f1)
+				return f1, nil
 			}
 			a = a2
 		}
-		fmt.Println("invalid keypair", a)
-		os.Exit(1)
+		return nil, errors.New("invalid keypair")
 	}
-	fmt.Println("factors not found after 100 iterations")
-	os.Exit(1)
-	return // not reached
+	return nil, errors.New("no factors found after 100 iterations")
 }
